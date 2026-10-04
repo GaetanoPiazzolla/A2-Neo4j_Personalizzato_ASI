@@ -30,6 +30,13 @@ start-docker.bat
 ```
 
 Rieseguirlo in qualsiasi momento riporta il database allo stato iniziale.
+Alla fine lo script stampa "Fatto": a quel punto il database è pronto.
+
+Se `./start-docker.sh` dà "permission denied" (succede dopo un download ZIP):
+
+```bash
+bash start-docker.sh
+```
 
 ## Accesso
 
@@ -37,13 +44,17 @@ Rieseguirlo in qualsiasi momento riporta il database allo stato iniziale.
 - Credenziali: `neo4j` / `password`
 - Bolt: `neo4j://localhost:7687`
 
-## Piano B (senza Docker)
+## Problemi comuni
 
-Su [sandbox.neo4j.com](https://sandbox.neo4j.com) crea una Sandbox con il dataset **Recommendations**.
+- **"Docker non è in esecuzione"**: avvia Docker Desktop e aspetta che sia pronto
+- **"La porta 7474 o 7687 è già usata"**: chiudi l'altro Neo4j (o altro programma) che le occupa
+- **"Impossibile scaricare il dump"**: controlla la connessione a internet
 
 ## Comandi utili
 
 ```bash
-docker-compose down          # ferma Neo4j (i dati restano nel volume)
-docker-compose up -d --wait  # riavvia senza ricaricare il dump
+docker compose down     # ferma Neo4j (i dati restano nel volume)
+docker compose up -d    # riavvia senza ricaricare il dump
 ```
+
+Se `docker compose` non funziona, usa `docker-compose` con il trattino.
