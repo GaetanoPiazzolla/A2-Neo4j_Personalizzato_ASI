@@ -53,22 +53,22 @@ docker volume rm asineo4j_plugins >nul 2>&1
 docker volume create asineo4j_plugins >nul
 
 echo Scarico il dataset Recommendations...
-if not exist "backups" mkdir backups
-curl -fL --retry 3 --connect-timeout 15 -# -o backups\neo4j.dump.tmp "%DUMP_URL%"
+if not exist ".backups" mkdir .backups
+curl -fL --retry 3 --connect-timeout 15 -# -o .backups\neo4j.dump.tmp "%DUMP_URL%"
 if errorlevel 1 (
-    del backups\neo4j.dump.tmp >nul 2>&1
-    if exist "backups\neo4j.dump" (
-        echo [ATTENZIONE] Download fallito: uso il dump gia' presente in backups.
+    del .backups\neo4j.dump.tmp >nul 2>&1
+    if exist ".backups\neo4j.dump" (
+        echo [ATTENZIONE] Download fallito: uso il dump gia' presente in .backups.
     ) else (
         echo [ERRORE] Impossibile scaricare il dump. Controlla la connessione a internet.
         exit /b 1
     )
 ) else (
-    move /y backups\neo4j.dump.tmp backups\neo4j.dump >nul
+    move /y .backups\neo4j.dump.tmp .backups\neo4j.dump >nul
 )
 
 echo Carico il dump nel volume Docker (la prima volta scarica anche l'immagine Neo4j)...
-docker run --rm -u root --volume="asineo4j_data:/data" --volume="%CD%\backups:/backups" %IMAGE% bash -c "neo4j-admin database load neo4j --from-path=/backups --overwrite-destination=true && neo4j-admin database migrate neo4j --to-format=aligned"
+docker run --rm -u root --volume="asineo4j_data:/data" --volume="%CD%\.backups:/backups" %IMAGE% bash -c "neo4j-admin database load neo4j --from-path=/backups --overwrite-destination=true && neo4j-admin database migrate neo4j --to-format=aligned"
 if errorlevel 1 (
     echo [ERRORE] Caricamento del dump fallito.
     exit /b 1

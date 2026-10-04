@@ -51,14 +51,14 @@ docker volume rm asineo4j_plugins >/dev/null 2>&1 || true
 docker volume create asineo4j_plugins >/dev/null
 
 echo "Scarico il dataset Recommendations..."
-mkdir -p backups
-if curl -fL --retry 3 --connect-timeout 15 -# -o backups/neo4j.dump.tmp "$DUMP_URL"; then
-  mv backups/neo4j.dump.tmp backups/neo4j.dump
-elif [ -s backups/neo4j.dump ]; then
-  rm -f backups/neo4j.dump.tmp
-  echo "Download fallito: uso il dump già presente in backups/." >&2
+mkdir -p .backups
+if curl -fL --retry 3 --connect-timeout 15 -# -o .backups/neo4j.dump.tmp "$DUMP_URL"; then
+  mv .backups/neo4j.dump.tmp .backups/neo4j.dump
+elif [ -s .backups/neo4j.dump ]; then
+  rm -f .backups/neo4j.dump.tmp
+  echo "Download fallito: uso il dump già presente in .backups/." >&2
 else
-  rm -f backups/neo4j.dump.tmp
+  rm -f .backups/neo4j.dump.tmp
   fail "impossibile scaricare il dump. Controlla la connessione a internet."
 fi
 
@@ -66,7 +66,7 @@ echo "Carico il dump nel volume Docker (la prima volta scarica anche l'immagine 
 docker run --rm \
   -u root \
   --volume=asineo4j_data:/data \
-  --volume="$(pwd)/backups:/backups" \
+  --volume="$(pwd)/.backups:/backups" \
   "$IMAGE" \
   bash -c "neo4j-admin database load neo4j --from-path=/backups --overwrite-destination=true && neo4j-admin database migrate neo4j --to-format=aligned" \
   || fail "caricamento del dump fallito."
