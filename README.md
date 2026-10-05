@@ -1,6 +1,6 @@
 # Corso Neo4j – Repository dei corsisti
 
-Ambiente pratico per il corso Neo4j (Cypher 5 / 25) – Giorno 1 e Giorno 2.
+Ambiente pratico per il corso Neo4j (Cypher 5 / 25).
 
 ## Prerequisiti
 
@@ -43,6 +43,27 @@ bash start-docker.sh
 - Neo4j Browser: http://localhost:7474
 - Credenziali: `neo4j` / `password`
 - Bolt: `neo4j://localhost:7687`
+
+## Dal Giorno 3: backend C#
+
+Serve anche il [.NET 10 SDK](https://dotnet.microsoft.com/download) (`dotnet --version` → 10.x).
+
+Ogni giorno trovi nuove cartelle con `git pull`:
+
+| Cartella | A cosa serve |
+|---|---|
+| `giornoN-start/` | **la tua**: ci lavori tutto il giorno, completando i `// TODO LAB` |
+| `giornoN-docente/` | il codice del docente, aggiornato prima di ogni LAB: **non modificarla** |
+| `giornoN-sol/` | la soluzione completa, pubblicata a fine giornata |
+
+```bash
+git pull
+cd giorno3-start/Neo4jBackend
+dotnet run          # -> http://localhost:5234
+```
+
+Le richieste di prova sono in `Neo4jBackend.http` (Rider e Visual Studio le eseguono
+direttamente; in VS Code serve l'estensione **REST Client**).
 
 ## Problemi comuni
 

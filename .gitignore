@@ -3,3 +3,8 @@
 *.dump
 .idea/
 .vscode/
+bin/
+obj/
+node_modules/
+dist/
+.vs/
