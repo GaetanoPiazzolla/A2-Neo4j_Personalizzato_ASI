@@ -1,0 +1,36 @@
+@Neo4jBackend_HostAddress = http://localhost:5234
+
+### Verifica postazione (senza estensione: curl http://localhost:5234/)
+GET {{Neo4jBackend_HostAddress}}/
+
+### 4.1 REST
+GET {{Neo4jBackend_HostAddress}}/api/health
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/non-esiste
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/non-esiste?x=1
+
+### 4.2 Driver
+GET {{Neo4jBackend_HostAddress}}/api/health/db
+
+### 4.2 Errori
+GET {{Neo4jBackend_HostAddress}}/api/debug/broken-query
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/debug/duplicate-genre
+
+### 4.3 Lettura
+GET {{Neo4jBackend_HostAddress}}/api/movies/top?limit=5
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies/profile?title=Matrix,%20The
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies/profile?title=Non%20Esiste
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies/profile?title=Schindler's%20List
+
+###
