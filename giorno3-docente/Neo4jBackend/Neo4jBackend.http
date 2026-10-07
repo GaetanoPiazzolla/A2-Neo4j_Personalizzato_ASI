@@ -1,8 +1,5 @@
 @Neo4jBackend_HostAddress = http://localhost:5234
 
-### Verifica postazione (senza estensione: curl http://localhost:5234/)
-GET {{Neo4jBackend_HostAddress}}/
-
 ### 4.1 REST
 GET {{Neo4jBackend_HostAddress}}/api/health
 

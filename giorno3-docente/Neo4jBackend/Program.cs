@@ -7,18 +7,21 @@ using Neo4jBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddNeo4j(builder.Configuration);
+// Errori e 404 in formato standard ProblemDetails (RFC 7807).
 builder.Services.AddProblemDetails();
 
-// LIVE CODING 4.2 ERRORI: registrare Neo4jExceptionHandler.
+builder.Services.AddNeo4j(builder.Configuration);
 
-// LIVE CODING 4.3: registrare MovieService.
+builder.Services.AddExceptionHandler<Neo4jExceptionHandler>();
+
+builder.Services.AddSingleton<MovieService>();
 
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
+// Il codice prima di next() vede la richiesta, quello dopo vede la risposta.
 app.Use(async (context, next) =>
 {
     if (!context.Request.Path.StartsWithSegments("/api"))
@@ -47,9 +50,8 @@ app.Use(async (context, next) =>
     }
 });
 
-// LIVE CODING 4.1: sostituire con GET /api/health.
-app.MapGet("/api/health", () =>
-        TypedResults.Ok("Ok")).WithName("Health");
+app.MapGet("/api/health", () => TypedResults.Ok("ok"))
+    .WithName("Health");
 
 // Il driver è lazy: è qui che scopriamo se URI e credenziali sono giusti.
 app.MapGet("/api/health/db", async Task<Results<Ok<DbHealthDto>, ProblemHttpResult>> (IDriver driver) =>
@@ -86,13 +88,15 @@ app.MapGet("/api/debug/duplicate-genre", async ([FromServices] IDriver driver) =
     return TypedResults.Ok();
 });
 
-// LIVE CODING 4.3: GET /api/movies/top?limit=5
+app.MapGet("/api/movies/top", async Task<Ok<List<MovieDto>>> (int? limit, MovieService service) =>
+    TypedResults.Ok(await service.GetTopRatedAsync(Math.Clamp(limit ?? 10, 1, 50))))
+    .WithName("GetTopMovies");
 
-// TODO LAB 4.3: aggiungere MovieService tra i parametri e restituire il profilo del film (404 se non esiste).
-app.MapGet("/api/movies/profile", async Task<Results<Ok<MovieProfileDto>, NotFound, ProblemHttpResult>> (string title) =>
+app.MapGet("/api/movies/profile", async Task<Results<Ok<MovieProfileDto>, NotFound, ProblemHttpResult>> (
+    string title, MovieService service) =>
 {
-    await Task.CompletedTask; // segnaposto: da sostituire con la chiamata a MovieService
-    return TypedResults.Problem(detail: "TODO LAB 4.3", statusCode: 501);
+    var profile = await service.GetProfileAsync(title);
+    return profile is null ? TypedResults.NotFound() : TypedResults.Ok(profile);
 })
 .WithName("GetMovieProfile");
 
