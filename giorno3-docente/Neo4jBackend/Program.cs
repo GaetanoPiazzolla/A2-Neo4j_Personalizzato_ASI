@@ -21,13 +21,31 @@ app.UseStatusCodePages();
 
 app.Use(async (context, next) =>
 {
-    app.Logger.LogInformation("=> {Method} {Path} ", context.Request.Method, context.Request.Path);
-    await next();
+    if (!context.Request.Path.StartsWithSegments("/api"))
+    {
+        await next(context);
+        return;
+    }
+
+    app.Logger.LogInformation("==> [API ENTER] {Method} {Path}{Query}",
+        context.Request.Method, context.Request.Path, context.Request.QueryString);
+
+    var watch = System.Diagnostics.Stopwatch.StartNew();
+    await next(context);
+    watch.Stop();
+
+    // Bonus LAB 4.1: le risposte di errore escono come warning.
+    if (context.Response.StatusCode >= 400)
+    {
+        app.Logger.LogWarning("<== [API EXIT] {Method} {Path} | Status: {StatusCode} | Time: {Elapsed}ms",
+            context.Request.Method, context.Request.Path, context.Response.StatusCode, watch.ElapsedMilliseconds);
+    }
+    else
+    {
+        app.Logger.LogInformation("<== [API EXIT] {Method} {Path} | Status: {StatusCode} | Time: {Elapsed}ms",
+            context.Request.Method, context.Request.Path, context.Response.StatusCode, watch.ElapsedMilliseconds);
+    }
 });
-
-
-// TODO LAB 4.1: completare il middleware: riga di uscita con status code e millisecondi,
-// solo per le chiamate /api.
 
 // LIVE CODING 4.1: sostituire con GET /api/health.
 app.MapGet("/api/health", () => 
