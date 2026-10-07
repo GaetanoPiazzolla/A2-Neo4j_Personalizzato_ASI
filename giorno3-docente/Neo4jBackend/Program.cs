@@ -48,15 +48,28 @@ app.Use(async (context, next) =>
 });
 
 // LIVE CODING 4.1: sostituire con GET /api/health.
-app.MapGet("/api/health", () => 
+app.MapGet("/api/health", () =>
         TypedResults.Ok("Ok")).WithName("Health");
 
-// TODO LAB 4.2: aggiungere IDriver tra i parametri, verificare la connessione e restituire DbHealthDto.
-// Se Neo4j non risponde: 503 con TypedResults.Problem.
-app.MapGet("/api/health/db", async Task<Results<Ok<DbHealthDto>, ProblemHttpResult>> () =>
+// Il driver è lazy: è qui che scopriamo se URI e credenziali sono giusti.
+app.MapGet("/api/health/db", async Task<Results<Ok<DbHealthDto>, ProblemHttpResult>> (IDriver driver) =>
 {
-    await Task.CompletedTask; // segnaposto: da sostituire con le chiamate al driver
-    return TypedResults.Problem(detail: "TODO LAB 4.2", statusCode: 501);
+    try
+    {
+        await driver.VerifyConnectivityAsync();
+        var info = await driver.GetServerInfoAsync();
+        return TypedResults.Ok(new DbHealthDto(info.Address, info.Agent, info.ProtocolVersion));
+    }
+    // Bonus LAB 4.2: credenziali sbagliate = errore di configurazione, riprovare non serve.
+    catch (AuthenticationException)
+    {
+        return TypedResults.Problem(title: "Configurazione del database errata", statusCode: 500);
+    }
+    catch (Neo4jException ex)
+    {
+        app.Logger.LogWarning(ex, "Health check fallito");
+        return TypedResults.Problem(detail: ex.Message, statusCode: 503);
+    }
 })
 .WithName("HealthDb");
 
