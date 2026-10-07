@@ -7,9 +7,8 @@ using Neo4jBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// LIVE CODING 4.1: ProblemDetails.
-
 builder.Services.AddNeo4j(builder.Configuration);
+builder.Services.AddProblemDetails();
 
 // LIVE CODING 4.2 ERRORI: registrare Neo4jExceptionHandler.
 
@@ -17,15 +16,22 @@ builder.Services.AddNeo4j(builder.Configuration);
 
 var app = builder.Build();
 
-// LIVE CODING 4.1: UseExceptionHandler e UseStatusCodePages.
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
-// LIVE CODING 4.1: middleware minimo con la riga di ingresso (app.Use e next).
+app.Use(async (context, next) =>
+{
+    app.Logger.LogInformation("=> {Method} {Path} ", context.Request.Method, context.Request.Path);
+    await next();
+});
+
 
 // TODO LAB 4.1: completare il middleware: riga di uscita con status code e millisecondi,
 // solo per le chiamate /api.
 
 // LIVE CODING 4.1: sostituire con GET /api/health.
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/api/health", () => 
+        TypedResults.Ok("Ok")).WithName("Health");
 
 // TODO LAB 4.2: aggiungere IDriver tra i parametri, verificare la connessione e restituire DbHealthDto.
 // Se Neo4j non risponde: 503 con TypedResults.Problem.
