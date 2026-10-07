@@ -1,0 +1,87 @@
+@Neo4jBackend_HostAddress = http://localhost:5234
+
+### Verifica postazione (senza estensione: curl http://localhost:5234/api/health/db)
+GET {{Neo4jBackend_HostAddress}}/api/health/db
+
+### 4.1 REST
+GET {{Neo4jBackend_HostAddress}}/api/health
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/non-esiste
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/non-esiste?x=1
+
+### 4.2 Driver
+GET {{Neo4jBackend_HostAddress}}/api/health/db
+
+### 4.2 Errori
+GET {{Neo4jBackend_HostAddress}}/api/debug/broken-query
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/debug/duplicate-genre
+
+### 4.3 Lettura
+GET {{Neo4jBackend_HostAddress}}/api/movies/top?limit=5
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies/profile?title=Matrix,%20The
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies/profile?title=Non%20Esiste
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies/profile?title=Schindler's%20List
+
+### Homework Giorno 3
+GET {{Neo4jBackend_HostAddress}}/api/persons/31
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/persons/190
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/persons/0
+
+### 4.3d Scrittura
+POST {{Neo4jBackend_HostAddress}}/api/actors
+Content-Type: application/json
+
+{ "tmdbId": "999001", "name": "Ada Corsista", "born": "1990-05-12" }
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/persons/999001
+
+###
+POST {{Neo4jBackend_HostAddress}}/api/actors
+Content-Type: application/json
+
+{ "tmdbId": "999001", "name": "Ada Doppione" }
+
+###
+POST {{Neo4jBackend_HostAddress}}/api/actors
+Content-Type: application/json
+
+{ "tmdbId": "999002" }
+
+###
+PUT {{Neo4jBackend_HostAddress}}/api/persons/999001
+Content-Type: application/json
+
+{ "name": "Ada Lovelace", "born": "1815-12-10" }
+
+###
+PUT {{Neo4jBackend_HostAddress}}/api/persons/000000
+Content-Type: application/json
+
+{ "name": "Nessuno" }
+
+###
+PUT {{Neo4jBackend_HostAddress}}/api/persons/999001/director
+
+###
+DELETE {{Neo4jBackend_HostAddress}}/api/persons/999001
+
+###
+DELETE {{Neo4jBackend_HostAddress}}/api/persons/999001
+
+###
