@@ -1,0 +1,661 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Neo4jBackend | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "Health",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health/db": {
+      "get": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "HealthDb",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DbHealthDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/debug/broken-query": {
+      "get": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/debug/duplicate-genre": {
+      "get": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/movies/top": {
+      "get": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "GetTopMovies",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/movies/profile": {
+      "get": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "GetMovieProfile",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieProfileDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/persons/{tmdbId}": {
+      "get": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "GetPersonProfile",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonProfileDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "UpdatePerson",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePersonDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "DeletePerson",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/actors": {
+      "post": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "CreateActor",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePersonDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/persons/{tmdbId}/director": {
+      "put": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "AddDirectorLabel",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/persons/{tmdbId}/acted-in/{movieTmdbId}": {
+      "put": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "AddActedInRelation",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "movieTmdbId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolesDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActedInDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "RemoveActedInRelation",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "movieTmdbId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActedInDto": {
+        "required": [
+          "person",
+          "movie"
+        ],
+        "type": "object",
+        "properties": {
+          "person": {
+            "type": "string"
+          },
+          "movie": {
+            "type": "string"
+          },
+          "roles": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreatePersonDto": {
+        "required": [
+          "tmdbId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "born": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "DbHealthDto": {
+        "required": [
+          "address",
+          "agent",
+          "protocolVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "agent": {
+            "type": "string"
+          },
+          "protocolVersion": {
+            "type": "string"
+          }
+        }
+      },
+      "MovieDto": {
+        "required": [
+          "tmdbId",
+          "movieId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "string"
+          },
+          "movieId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "year": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "plot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "poster": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "imdbRating": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "genres": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MovieProfileDto": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "year": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "directors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "avgRating": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "actors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PersonDto": {
+        "required": [
+          "tmdbId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "born": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "labels": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PersonProfileDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "born": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "actedIn": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "directed": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RolesDto": {
+        "required": [
+          "roles"
+        ],
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdatePersonDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "born": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Neo4jBackend"
+    }
+  ]
+}

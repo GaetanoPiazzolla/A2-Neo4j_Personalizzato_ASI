@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- A ogni build scrive Neo4jBackend.json: da lì il frontend genera il client TypeScript. -->
+    <OpenApiDocumentsDirectory>./</OpenApiDocumentsDirectory>
+    <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.11">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Neo4j.Driver" Version="6.3.0" />
+  </ItemGroup>
+
+</Project>

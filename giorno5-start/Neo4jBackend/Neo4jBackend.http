@@ -1,0 +1,93 @@
+@Neo4jBackend_HostAddress = http://localhost:5234
+
+### Verifica postazione
+GET {{Neo4jBackend_HostAddress}}/api/health/db
+
+### 4.4 Paginazione
+GET {{Neo4jBackend_HostAddress}}/api/movies
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies?skip=20&take=5
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies?skip=-5&take=1000
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies?search=matrix
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies?search=MATRIX&take=2
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies?search=nessunfilmsichiamacosi
+
+### 4.4b Relazioni ACTED_IN
+POST {{Neo4jBackend_HostAddress}}/api/actors
+Content-Type: application/json
+
+{ "tmdbId": "999001", "name": "Ada Corsista", "born": "1990-05-12" }
+
+###
+PUT {{Neo4jBackend_HostAddress}}/api/persons/999001/acted-in/603
+Content-Type: application/json
+
+{ "roles": ["Neo"] }
+
+###
+PUT {{Neo4jBackend_HostAddress}}/api/persons/999001/acted-in/603
+Content-Type: application/json
+
+{ "roles": ["Neo", "The One"] }
+
+###
+PUT {{Neo4jBackend_HostAddress}}/api/persons/999001/acted-in/000000
+Content-Type: application/json
+
+{ "roles": ["Nessuno"] }
+
+###
+DELETE {{Neo4jBackend_HostAddress}}/api/persons/999001/acted-in/603
+
+###
+DELETE {{Neo4jBackend_HostAddress}}/api/persons/999001/acted-in/603
+
+###
+DELETE {{Neo4jBackend_HostAddress}}/api/persons/999001
+
+### 4.4b Espansione
+GET {{Neo4jBackend_HostAddress}}/api/graph/expand/Movie/603
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/graph/expand/Person/6384
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/graph/expand/Movie/000000
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/graph/expand/User/1
+
+### Giorni precedenti
+GET {{Neo4jBackend_HostAddress}}/api/health
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies/top?limit=5
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/movies/profile?title=Matrix,%20The
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/persons/31
+
+###
+PUT {{Neo4jBackend_HostAddress}}/api/persons/999001
+Content-Type: application/json
+
+{ "name": "Ada Lovelace", "born": "1815-12-10" }
+
+###
+PUT {{Neo4jBackend_HostAddress}}/api/persons/999001/director
+
+###
+GET {{Neo4jBackend_HostAddress}}/api/debug/broken-query
+
+###
