@@ -46,4 +46,11 @@ public class PersonService(IGraphSessionFactory sessionFactory)
     {
         throw new NotImplementedException();
     }
+
+    // TODO LAB 4.3d (bonus): come UpdateAsync, ma con SET p:Director.
+    // Restituire null se la persona non esiste.
+    public Task<PersonDto?> AddDirectorLabelAsync(string tmdbId)
+    {
+        throw new NotImplementedException();
+    }
 }

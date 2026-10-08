@@ -132,6 +132,15 @@ app.MapDelete("/api/persons/{tmdbId}", async Task<Results<NoContent, NotFound, P
 })
 .WithName("DeletePerson");
 
+// TODO LAB 4.3d (bonus): aggiungere PersonService tra i parametri e restituire la persona con la label Director (404 se non esiste).
+app.MapPut("/api/persons/{tmdbId}/director", async Task<Results<Ok<PersonDto>, NotFound, ProblemHttpResult>> (
+    string tmdbId) =>
+{
+    await Task.CompletedTask; // segnaposto: da sostituire con la chiamata a PersonService
+    return TypedResults.Problem(detail: "TODO LAB 4.3d", statusCode: 501);
+})
+.WithName("AddDirectorLabel");
+
 app.Run();
 
 public partial class Program { }
