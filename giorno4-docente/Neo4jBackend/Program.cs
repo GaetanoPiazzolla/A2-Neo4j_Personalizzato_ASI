@@ -9,10 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Errori e 404 in formato standard ProblemDetails (RFC 7807).
 builder.Services.AddProblemDetails();
-
 builder.Services.AddNeo4j(builder.Configuration);
-
 builder.Services.AddExceptionHandler<Neo4jExceptionHandler>();
+builder.Services.AddValidation();
 
 // LIVE CODING 4.3d: validazione automatica dei DTO.
 
@@ -112,9 +111,12 @@ app.MapGet("/api/persons/{tmdbId}", async Task<Results<Ok<PersonProfileDto>, Not
 })
 .WithName("GetPersonProfile");
 
-// LIVE CODING 4.3d: POST /api/actors
+app.MapPost("/api/actors", async Task<Created<PersonDto>> (CreatePersonDto input, PersonService personService) =>
+{
+    var person = await personService.CreateActorAsync(input);
+    return TypedResults.Created("/api/persons/{person.TmdbId}", person);
+}).WithName("CreatePerson");
 
-// TODO LAB 4.3d: aggiungere PersonService tra i parametri e restituire la persona aggiornata (404 se non esiste).
 app.MapPut("/api/persons/{tmdbId}", async Task<Results<Ok<PersonDto>, NotFound, ProblemHttpResult>> (
     string tmdbId, UpdatePersonDto input) =>
 {

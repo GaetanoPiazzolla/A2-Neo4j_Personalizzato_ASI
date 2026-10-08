@@ -28,9 +28,18 @@ public class PersonService(IGraphSessionFactory sessionFactory)
     }
 
     // LIVE CODING 4.3d: crea una persona con le label Person e Actor.
-    public Task<PersonDto> CreateActorAsync(CreatePersonDto input)
+    public async Task<PersonDto> CreateActorAsync(CreatePersonDto input)
     {
-        throw new NotImplementedException();
+        await using var session = sessionFactory.CreateWriteSession();
+        return await session.ExecuteWriteAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(@"
+                    CREATE (p:Person:Actor {tmdbId: $tmdbId, name: $name, born: $born})
+                    RETURN p.tmdbId AS tmdbId, p.name AS name, toString(p.born) AS born, labels(p) AS labels",
+                    new { input.TmdbId, input.Name, input.Born });
+            var record = await cursor.SingleAsync();
+            return record.AsObject<PersonDto>();
+        });
     }
 
     // TODO LAB 4.3d: MATCH della persona per tmdbId, SET di name e born, RETURN come in CreateActorAsync.
