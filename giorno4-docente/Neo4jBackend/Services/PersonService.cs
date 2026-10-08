@@ -34,7 +34,7 @@ public class PersonService(IGraphSessionFactory sessionFactory)
         return await session.ExecuteWriteAsync(async tx =>
         {
             var cursor = await tx.RunAsync(@"
-                    CREATE (p:Person:Actor {tmdbId: $tmdbId, name: $name, born: $born})
+                    CREATE (p:Person:Actor {tmdbId: $tmdbId, name: $name, born: date($born)})
                     RETURN p.tmdbId AS tmdbId, p.name AS name, toString(p.born) AS born, labels(p) AS labels",
                     new { input.TmdbId, input.Name, input.Born });
             var record = await cursor.SingleAsync();
@@ -42,24 +42,53 @@ public class PersonService(IGraphSessionFactory sessionFactory)
         });
     }
 
-    // TODO LAB 4.3d: MATCH della persona per tmdbId, SET di name e born, RETURN come in CreateActorAsync.
-    // Restituire null se la persona non esiste.
-    public Task<PersonDto?> UpdateAsync(string tmdbId, UpdatePersonDto input)
+    public async Task<PersonDto?> UpdateAsync(string tmdbId, UpdatePersonDto input)
     {
-        throw new NotImplementedException();
+        await using var session = sessionFactory.CreateWriteSession();
+
+        return await session.ExecuteWriteAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(@"
+                MATCH (p:Person {tmdbId: $tmdbId})
+                SET p.name = $name, p.born = date($born)
+                RETURN p.tmdbId AS tmdbId, p.name AS name, toString(p.born) AS born, labels(p) AS labels",
+                new { tmdbId, input.Name, input.Born });
+
+            var records = await cursor.ToListAsync();
+            return records.Count == 0 ? null : records[0].AsObject<PersonDto>();
+        });
     }
 
-    // TODO LAB 4.3d: cancellare la persona e le sue relazioni.
-    // Restituire false se non esisteva (Counters del summary).
-    public Task<bool> DeleteAsync(string tmdbId)
+    public async Task<bool> DeleteAsync(string tmdbId)
     {
-        throw new NotImplementedException();
+        await using var session = sessionFactory.CreateWriteSession();
+
+        return await session.ExecuteWriteAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(@"
+                MATCH (p:Person {tmdbId: $tmdbId})
+                DETACH DELETE p", new { tmdbId });
+
+            var summary = await cursor.ConsumeAsync();
+            return summary.Counters.NodesDeleted > 0;
+        });
     }
 
-    // TODO LAB 4.3d (bonus): come UpdateAsync, ma con SET p:Director.
-    // Restituire null se la persona non esiste.
-    public Task<PersonDto?> AddDirectorLabelAsync(string tmdbId)
+    // Bonus LAB 4.3d: la stessa persona può avere più ruoli, basta aggiungere la label.
+    public async Task<PersonDto?> AddDirectorLabelAsync(string tmdbId)
     {
-        throw new NotImplementedException();
+        await using var session = sessionFactory.CreateWriteSession();
+
+        return await session.ExecuteWriteAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(@"
+                MATCH (p:Person {tmdbId: $tmdbId})
+                SET p:Director
+                RETURN p.tmdbId AS tmdbId, p.name AS name, toString(p.born) AS born, labels(p) AS labels",
+                new { tmdbId });
+
+            var records = await cursor.ToListAsync();
+            return records.Count == 0 ? null : records[0].AsObject<PersonDto>();
+        });
     }
 }

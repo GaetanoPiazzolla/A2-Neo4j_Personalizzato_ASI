@@ -114,32 +114,31 @@ app.MapGet("/api/persons/{tmdbId}", async Task<Results<Ok<PersonProfileDto>, Not
 app.MapPost("/api/actors", async Task<Created<PersonDto>> (CreatePersonDto input, PersonService personService) =>
 {
     var person = await personService.CreateActorAsync(input);
-    return TypedResults.Created("/api/persons/{person.TmdbId}", person);
+    return TypedResults.Created($"/api/persons/{person.TmdbId}", person);
 }).WithName("CreatePerson");
 
 app.MapPut("/api/persons/{tmdbId}", async Task<Results<Ok<PersonDto>, NotFound, ProblemHttpResult>> (
-    string tmdbId, UpdatePersonDto input) =>
+    string tmdbId, UpdatePersonDto input, PersonService service) =>
 {
-    await Task.CompletedTask; // segnaposto: da sostituire con la chiamata a PersonService
-    return TypedResults.Problem(detail: "TODO LAB 4.3d", statusCode: 501);
+    var person = await service.UpdateAsync(tmdbId, input);
+    return person is null ? TypedResults.NotFound() : TypedResults.Ok(person);
 })
 .WithName("UpdatePerson");
 
-// TODO LAB 4.3d: aggiungere PersonService tra i parametri: 204 se cancellata, 404 se non esiste.
 app.MapDelete("/api/persons/{tmdbId}", async Task<Results<NoContent, NotFound, ProblemHttpResult>> (
-    string tmdbId) =>
+    string tmdbId, PersonService service) =>
 {
-    await Task.CompletedTask; // segnaposto: da sostituire con la chiamata a PersonService
-    return TypedResults.Problem(detail: "TODO LAB 4.3d", statusCode: 501);
+    var deleted = await service.DeleteAsync(tmdbId);
+    return deleted ? TypedResults.NoContent() : TypedResults.NotFound();
 })
 .WithName("DeletePerson");
 
-// TODO LAB 4.3d (bonus): aggiungere PersonService tra i parametri e restituire la persona con la label Director (404 se non esiste).
+// Bonus LAB 4.3d
 app.MapPut("/api/persons/{tmdbId}/director", async Task<Results<Ok<PersonDto>, NotFound, ProblemHttpResult>> (
-    string tmdbId) =>
+    string tmdbId, PersonService service) =>
 {
-    await Task.CompletedTask; // segnaposto: da sostituire con la chiamata a PersonService
-    return TypedResults.Problem(detail: "TODO LAB 4.3d", statusCode: 501);
+    var person = await service.AddDirectorLabelAsync(tmdbId);
+    return person is null ? TypedResults.NotFound() : TypedResults.Ok(person);
 })
 .WithName("AddDirectorLabel");
 
