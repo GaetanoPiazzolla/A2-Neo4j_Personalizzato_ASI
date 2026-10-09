@@ -435,6 +435,47 @@
           }
         }
       }
+    },
+    "/api/graph/expand/{label}/{id}": {
+      "get": {
+        "tags": [
+          "Neo4jBackend"
+        ],
+        "operationId": "ExpandGraphNode",
+        "parameters": [
+          {
+            "name": "label",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphPayloadDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -500,6 +541,54 @@
           },
           "protocolVersion": {
             "type": "string"
+          }
+        }
+      },
+      "EdgeDto": {
+        "required": [
+          "id",
+          "source",
+          "target",
+          "type",
+          "properties"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object"
+          }
+        }
+      },
+      "GraphPayloadDto": {
+        "required": [
+          "nodes",
+          "edges"
+        ],
+        "type": "object",
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NodeDto"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EdgeDto"
+            }
           }
         }
       },
@@ -605,6 +694,35 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "NodeDto": {
+        "required": [
+          "id",
+          "businessKey",
+          "labels",
+          "properties"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "businessKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "properties": {
+            "type": "object"
           }
         }
       },

@@ -186,6 +186,18 @@ app.MapGet("/api/movies", async Task<Ok<PaginatedResultDto<MovieDto>>> (
         TypedResults.Ok(await service.SearchAsync(Math.Max(skip ?? 0, 0), Math.Clamp(take ?? 20, 1, 100), search)))
     .WithName("GetMovies");
 
+// Solo label con chiave tmdbId. Genre no (Drama ha 4.365 film), User no (i voti): 400 con il motivo.
+app.MapGet("/api/graph/expand/{label}/{id}", async Task<Results<Ok<GraphPayloadDto>, NotFound, ProblemHttpResult>> (
+        string label, string id, GraphService service) =>
+    {
+        if (!GraphMapping.ExpandableLabels.Contains(label))
+        {
+            return TypedResults.Problem(detail: $"Label non espandibile: {label}", statusCode: 400);
+        }
+        var graph = await service.ExpandAsyc(label, id);
+        return graph is null ? TypedResults.NotFound() : TypedResults.Ok(graph);
+    })
+    .WithName("ExpandGraphNode");
 
 app.Run();
 
