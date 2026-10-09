@@ -56,12 +56,21 @@ export function Persons() {
     setPerson(data ?? null);
   }, 'Persona aggiornata');
 
-  const handleRelate = () => {
-    // TODO LAB 5.3: ruoli da "Neo, The One" a ["Neo", "The One"], poi addActedInRelation; la risposta in actedIn
-  };
+  const handleRelate = () =>  run(async () => {
+    const roles = relRoles.split(',').map( r => r.trim()).filter(r => r !== '');
+    const { data } = await addActedInRelation( {
+      path: { tmdbId: relPersonId.trim(), movieTmdbId: relMovieId.trim()},
+      body: { roles }
+    });
+    setActedIn(data ?? null)
+  }, 'Relazione Salvata');
 
   const handleDelete = () => {
-    // TODO LAB 5.3: conferma con confirm(), poi deletePerson; person torna null
+    if (!confirm(`Eliminare la persona ${tmdbId} e tutte le sue relazioni?`)) return;
+    run(async () => {
+      await deletePerson({ path: { tmdbId: tmdbId.trim() } });
+      setPerson(null);   // il riquadro si svuota
+    }, 'Persona eliminata');
   };
 
   return (
