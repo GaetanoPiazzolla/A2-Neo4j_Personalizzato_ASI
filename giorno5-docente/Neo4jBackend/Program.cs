@@ -181,6 +181,12 @@ app.MapDelete("/api/persons/{tmdbId}/acted-in/{movieTmdbId}", async Task<Results
 })
 .WithName("RemoveActedInRelation");
 
+app.MapGet("/api/movies", async Task<Ok<PaginatedResultDto<MovieDto>>> (
+            int? skip, int? take, string? search, MovieService service) =>
+        TypedResults.Ok(await service.SearchAsync(Math.Max(skip ?? 0, 0), Math.Clamp(take ?? 20, 1, 100), search)))
+    .WithName("GetMovies");
+
+
 app.Run();
 
 public partial class Program { }

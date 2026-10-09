@@ -51,4 +51,33 @@ public class MovieService(IGraphSessionFactory sessionFactory)
     }
 
     // LIVE CODING 4.4: filtro comune con la ricerca, e SearchAsync (conteggio + pagina)
+    
+    private const string MovieFilter = @"
+        MATCH (m:Movie)
+        WHERE m.tmdbId IS NOT NULL
+        AND ($search IS NULL OR toLower(m.title) CONTAINS toLower($search))";
+
+
+    public async Task<PaginatedResultDto<MovieDto>> SearchAsync(int skip, int take, string? search)
+    {
+        await using var session = sessionFactory.CreateReadSession();
+        return await session.ExecuteReadAsync(async tx =>
+        {
+
+            var countCursor = await tx.RunAsync(MovieFilter + " RETURN count(m) as total", new { search });
+            var total = (await countCursor.SingleAsync())["total"].As<long>();
+
+            var cursor = await tx.RunAsync(MovieFilter + @"
+                WITH m ORDER BY coalesce(m.imdbRating, 0) DESC, m.tmdbId
+                SKIP $skip LIMIT $take
+                RETURN m.tmdbId AS tmdbId, m.movieId AS movieId, m.title AS title, m.year AS year,
+                   m.poster AS poster, m.imdbRating AS imdbRating,
+                   COLLECT { MATCH (m)-[:IN_GENRE]->(g:Genre) RETURN g.name } AS genres
+            ", new { search, skip, take });
+            var records = await cursor.ToListAsync();
+            var items = records.Select(r => r.AsObject<MovieDto>()).ToList();
+            return new PaginatedResultDto<MovieDto>(items, total, skip, take);
+        });
+    }
+    
 }
