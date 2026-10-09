@@ -18,7 +18,10 @@ export function Explorer() {
   const expand = useCallback(async (targetLabel: string, targetId: string) => {
     setLoading(true);
     try {
-      // LIVE CODING 5.2: chiamare expandGraphNode e passare la risposta al grafo
+      const { data } = await expandGraphNode({ path : { label: targetLabel, id: targetId}});
+      if(data) {
+        setPayload(data)
+      }
     } catch (err: any) {
       showToast(err?.detail ?? err?.title ?? String(err), 'error');
     } finally {
@@ -42,8 +45,14 @@ export function Explorer() {
   };
 
   const handleClick = useCallback((params: GraphEventParams, renderer: GraphRenderer) => {
-    // TODO LAB 5.2: id del nodo cliccato -> VisNode dal DataSet -> expand(group, businessKey)
-    // TODO LAB 5.2 (bonus): sui nodi Genre un toast invece della chiamata
+    const nodeId = params.nodes?.[0];
+    if(!nodeId) {
+      return;
+    }
+    var node = renderer.nodes.get(nodeId);
+    if(node?.group && node?.businessKey) {
+      expand(node?.group, node?.businessKey)
+    }
   }, [expand]);
 
   const events = useMemo(() => [{ event: 'click' as const, handler: handleClick }], [handleClick]);

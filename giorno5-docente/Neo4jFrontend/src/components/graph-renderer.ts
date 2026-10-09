@@ -99,7 +99,25 @@ export class GraphRenderer {
 
   // Aggiunge al grafo disegnato i nodi e gli archi della risposta, senza cancellare quelli che ci sono.
   mergeGraph(payload: GraphPayloadDto) {
-    // LIVE CODING 5.2: da NodeDto/EdgeDto a VisNode/VisEdge, poi update dei due DataSet
+    const visNodes: VisNode[] = payload.nodes.map(n => ({
+      id: n.id,                                                       // elementId: unico in tutto il database
+      label: String(n.properties.title ?? n.properties.name ?? n.id), // film: title, persone e generi: name
+      group: n.labels[0],                                             // la prima label sceglie colore e forma (groups)
+      properties: n.properties,                                       // per il tooltip
+      businessKey: n.businessKey ?? undefined,                        // tmdbId, per richiamare l'API; null -> assente
+    }));
+    // update: inserisce i nodi nuovi e aggiorna quelli con lo stesso id, niente doppioni.
+    this.nodes.update(visNodes);
+
+    // from e to sono elementId: vis-network collega l'arco ai nodi con quegli id.
+    const visEdges: VisEdge[] = payload.edges.map(e => ({
+      id: e.id,
+      from: e.source,
+      to: e.target,
+      label: e.type,
+      color: { color: EDGE_COLORS[e.type] ?? '#666' },                // colore per tipo di relazione
+    }));
+    this.edges.update(visEdges);
   }
 
   // Eventi (click, hover...): Graph.tsx li collega per conto della pagina.

@@ -21,7 +21,11 @@ export function Movies() {
       setLoading(true);
       setError(null);
       try {
-        // LIVE CODING 5.1: chiamare getMovies e salvare items e totalCount nello stato
+        const { data } = await getMovies({ query : { search, skip, take: PAGE_SIZE}});
+        if(!ignore && data && data.items) {
+          setItems(data.items);
+          setTotal(Number(data.totalCount));
+        }
       } catch (err: any) {
         if (!ignore) setError(err?.detail ?? err?.title ?? String(err));
       } finally {
@@ -34,6 +38,8 @@ export function Movies() {
 
   function doSearch() {
     // TODO LAB 5.1: salvare searchInput in search e tornare alla prima pagina
+    setSearch(searchInput);
+    setSkip(0);
   }
 
   return (
@@ -96,10 +102,8 @@ export function Movies() {
         </button>
         <span>
           {total > 0 ? `${skip + 1}–${Math.min(skip + PAGE_SIZE, total)} di ${total}` : '0 risultati'}
-          {/* TODO LAB 5.1 (bonus): " · pagina X di Y" */}
         </span>
-        {/* TODO LAB 5.1: disabilitato sull'ultima pagina; al click la pagina dopo */}
-        <button disabled onClick={() => {}}>
+        <button disabled={total < skip + PAGE_SIZE} onClick={() => setSkip(s => s + PAGE_SIZE)}>
           Successivo →
         </button>
       </div>

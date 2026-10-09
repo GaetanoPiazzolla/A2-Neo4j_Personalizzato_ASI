@@ -35,8 +35,17 @@ export function Persons() {
     }
   }
 
-  const handleCreate = () => {
+   const handleCreate = async () => {
     // LIVE CODING 5.3: createActor, poi addDirectorLabel se è anche regista; la risposta in person
+    const { data } = await createActor({body : { tmdbId: tmdbId.trim(), name: name.trim(), born: born || null}})
+    if(!data) { return }
+    if (isDirector) {
+      const { data :director } = await addDirectorLabel({ path: {tmdbId: tmdbId.trim()}});
+      setPerson(director ?? data)
+    }
+    else{
+      setPerson(data);
+    }
   };
 
   const handleUpdate = () => run(async () => {
